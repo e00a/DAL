@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.SqlClient;
 
 namespace LabWork15
 {
@@ -7,139 +6,144 @@ namespace LabWork15
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Строка подключения:");
-            Console.WriteLine(DAL.ConnectionString);
-            Console.WriteLine();
+            Task1();
+            //Task2();
 
-            DAL.ChangeConnectionSetting("prserver\\SQLEXPRESS", "ispp1103", "ispp1103", "1103");
-            Console.WriteLine("Новая строка подключения:");
-            Console.WriteLine(DAL.ConnectionString);
-            Console.WriteLine();
-
-            Console.WriteLine("Проверка подключения");
-            if (DAL.IsConnected())
-            {
-                Console.WriteLine("Успешное подключение");
-            }
-            else
+            Console.WriteLine("Проверка подключения...");
+            if (!DAL.IsConnected())
             {
                 Console.WriteLine("Подключение к БД не удалось.");
                 return;
             }
+            Console.WriteLine("Успешное подключение");
 
-            await Task3();
+            //await Task3(); //change type
+            //
+            //await Task4();
 
-            await Task4();
+            await Task5(); //change type
 
-            await Task5();
+            //await Task6(); // Add Photo to Customer, 
+            //
+            //await Task7();
+            //
+            //await Task8();
+        }
 
-            await Task6();
 
-            await Task7();
+        private static void Task1()
+        {
+            Console.WriteLine("Строка подключения:");
+            Console.WriteLine(DAL.ConnectionString);
+            Console.WriteLine();
+        }
 
-            await Task8();
+        private static void Task2()
+        {
+            DAL.ChangeConnectionSetting("prserver\\SQLEXPRESS", "ispp1103", "ispp1103", "1103", false);
+            Console.WriteLine("Новая строка подключения:");
+            Console.WriteLine(DAL.ConnectionString);
+            Console.WriteLine();
         }
 
         private static async Task Task3()
         {
-            Console.WriteLine("Task3");
-            string sqlQuery = "";
-            int rowsAffected = await DAL.ExecuteSqlCommandAsync(sqlQuery);
-            Console.WriteLine($"Количество измененных строк: {rowsAffected}");
+            Console.WriteLine("\n<<Task3>>");
+
+            string sqlQuery = "UPDATE Product SET Price += 1 WHERE Type = 'Phone'";
+            try
+            {
+                int rowsAffected = await DAL.ExecuteSqlCommandAsync(sqlQuery);
+                Console.WriteLine($"Количество измененных строк: {rowsAffected}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
 
         private static async Task Task4()
         {
-            Console.WriteLine("Task4");
-            string sqlQuery = "";
-            object? result = await DAL.GetValueAsync(sqlQuery);
-            Console.WriteLine($"Результат выполнения команды: {result}");
+            Console.WriteLine("\n<<Task4>>");
+            string sqlQuery = "SELECT MAX(Price) FROM Product";
+            try
+            {
+                object? result = await DAL.GetValueAsync(sqlQuery);
+                Console.WriteLine($"Результат: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         private static async Task Task5()
         {
-            Console.WriteLine("Task5");
+            Console.WriteLine("\n<<Task5>>");
 
-            string sqlQuery = "";
-            string productType = ""; //Введите тип товара для изменения цены
-            decimal newPrice = 2; //новая цена товара
-
-            SqlParameter[] parameters =
-            {
-                new SqlParameter("@ProductType", productType),
-                new SqlParameter("@NewPrice", newPrice)
-            };
-
-            int rowsAffected = await DAL.ExecuteNonQueryAsync(sqlQuery, parameters);
-            Console.WriteLine($"Количество затронутых строк: {rowsAffected}");
-        }
-
-        private static async Task Task6()
-        {
-            Console.WriteLine("Task6");
-            string customerLogin = ""; //логин покупателя
-
-            string filePath = ""; // путь к файлу изображения
+            string productType = "Tablet";
+            decimal newPrice = 1099;
 
             try
             {
-                await DAL.UploadPhotoToDatabase(customerLogin, filePath);
-                Console.WriteLine("Файл успешно загружен в БД.");
+                int rowsAffected = await DAL.UpdateProductPrice(productType, newPrice);
+                Console.WriteLine($"Rows affected: {rowsAffected}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка при загрузке файла в БД: " + ex.Message);
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        static async Task Task6()
+        {
+            Console.WriteLine("\n<<Task6>>");
+
+            string login = "janedoe";
+            string filePath = @$"{Environment.CurrentDirectory}\Images\img.png";
+
+            try
+            {
+                await DAL.SetCustomerPhoto(login, filePath);
+                Console.WriteLine("Photo uploaded");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
         private static async Task Task7()
         {
-            Console.WriteLine("Task7");
-            string customerLogin = "";
-            string filePath = "";
-            string sqlQuery = "SELECT Photo FROM Customers WHERE Login = @Login";
+            Console.WriteLine("\n<<Task7>>");
+
+            string login = "janedoe";
+            string filePath = @$"{Environment.CurrentDirectory}\LoadedImages\img.png";
 
             try
             {
-                SqlParameter[] parameters =
-                {
-                    new SqlParameter("@Login", customerLogin)
-                };
-
-                byte[]? fileBytes = await DAL.ExecuteReaderAsync(sqlQuery, parameters);
-
-                if (fileBytes != null)
-                {
-                    File.WriteAllBytes(filePath, fileBytes);
-                    Console.WriteLine("Файл успешно сохранен на ПК пользователя.");
-                }
-                else
-                {
-                    Console.WriteLine("Покупатель с указанным логином не найден или у него нет загруженного файла.");
-                }
+                await DAL.SaveCustomerPhoto(login, filePath);
+                Console.WriteLine("File saved");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка при сохранении файла: " + ex.Message);
-                return;
+                Console.WriteLine(ex.Message);
             }
         }
 
         private static async Task Task8()
         {
-            Console.WriteLine("Task8");
-            string sqlQuery = "";
+            Console.WriteLine("\n<<Task8>>");
+
             try
             {
-                DataTable dataTable = await DAL.GetCustomersWithPhone(sqlQuery);
-                Console.WriteLine("Результат выборки:");
+                DataTable dataTable = await DAL.GetCustomersWithPhone();
                 PrintDataTable(dataTable);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Ошибка при выполнении выборки: " + ex.Message);
-                return;
+                Console.WriteLine(ex.Message);
             }
         }
 
