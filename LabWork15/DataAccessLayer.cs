@@ -8,7 +8,7 @@ namespace LabWork15
         private static string _serverName = "server";
         private static string _dbName = "db";
         private static string _userName = "login";
-        private static string _password = "pass";
+        private static string _password = "passs";
 
         public static string ConnectionString
         {
