@@ -7,22 +7,19 @@ namespace LabWork15
     {
         static async Task Main(string[] args)
         {
-            string connectionString = DAL.ConnectionString;
-            Console.WriteLine("Строка подключения по умолчанию:");
-            Console.WriteLine(connectionString);
+            Console.WriteLine("Строка подключения:");
+            Console.WriteLine(DAL.ConnectionString);
             Console.WriteLine();
 
-            Console.WriteLine("Изменяем настройки подключения...");
-            DAL.ChangeConnectionSettings("новый сервер", "новая БД", "новый логин", "новый пароль");
-            connectionString = DAL.ConnectionString;
-            Console.WriteLine("Строка подключения после изменения настроек:");
-            Console.WriteLine(connectionString);
+            DAL.ChangeConnectionSetting("prserver\\SQLEXPRESS", "ispp1103", "ispp1103", "1103");
+            Console.WriteLine("Новая строка подключения:");
+            Console.WriteLine(DAL.ConnectionString);
             Console.WriteLine();
 
-            Console.WriteLine("Проверка подключения к БД...");
+            Console.WriteLine("Проверка подключения");
             if (DAL.IsConnected())
             {
-                Console.WriteLine("Успешное подключение к БД!");
+                Console.WriteLine("Успешное подключение");
             }
             else
             {
@@ -45,6 +42,7 @@ namespace LabWork15
 
         private static async Task Task3()
         {
+            Console.WriteLine("Task3");
             string sqlQuery = "";
             int rowsAffected = await DAL.ExecuteSqlCommandAsync(sqlQuery);
             Console.WriteLine($"Количество измененных строк: {rowsAffected}");
@@ -53,13 +51,16 @@ namespace LabWork15
 
         private static async Task Task4()
         {
+            Console.WriteLine("Task4");
             string sqlQuery = "";
-            object? result = await DAL.ExecuteScalarAsync(sqlQuery);
+            object? result = await DAL.GetValueAsync(sqlQuery);
             Console.WriteLine($"Результат выполнения команды: {result}");
         }
 
         private static async Task Task5()
         {
+            Console.WriteLine("Task5");
+
             string sqlQuery = "";
             string productType = ""; //Введите тип товара для изменения цены
             decimal newPrice = 2; //новая цена товара
@@ -76,6 +77,7 @@ namespace LabWork15
 
         private static async Task Task6()
         {
+            Console.WriteLine("Task6");
             string customerLogin = ""; //логин покупателя
 
             string filePath = ""; // путь к файлу изображения
@@ -93,6 +95,7 @@ namespace LabWork15
 
         private static async Task Task7()
         {
+            Console.WriteLine("Task7");
             string customerLogin = "";
             string filePath = "";
             string sqlQuery = "SELECT Photo FROM Customers WHERE Login = @Login";
@@ -125,6 +128,7 @@ namespace LabWork15
 
         private static async Task Task8()
         {
+            Console.WriteLine("Task8");
             string sqlQuery = "";
             try
             {

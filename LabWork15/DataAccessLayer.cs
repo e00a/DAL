@@ -5,34 +5,32 @@ namespace LabWork15
 {
     public static class DAL
     {
-        private static string _serverName = "название сервера";
-        private static string _dbName = "название БД";
-        private static string _username = "логин пользователя";
-        private static string _password = "пароль пользователя";
+        private static string _serverName = "server";
+        private static string _dbName = "db";
+        private static string _userName = "login";
+        private static string _password = "pass";
 
         public static string ConnectionString
         {
             get
             {
-                SqlConnectionStringBuilder builder = new()
+                return new SqlConnectionStringBuilder()
                 {
                     DataSource = _serverName,
                     InitialCatalog = _dbName,
-                    UserID = _username,
+                    UserID = _userName,
                     Password = _password,
                     TrustServerCertificate = true
-                };
-
-                return builder.ConnectionString;
+                }.ConnectionString;
             }
         }
 
-        public static void ChangeConnectionSettings(string newServerName, string newDbName, string newUsername, string newPassword)
+        public static void ChangeConnectionSetting(string serverName, string dbName, string userName, string password)
         {
-            _serverName = newServerName;
-            _dbName = newDbName;
-            _username = newUsername;
-            _password = newPassword;
+            _serverName = serverName;
+            _dbName = dbName;
+            _userName = userName;
+            _password = password;
         }
 
         public static bool IsConnected()
@@ -45,7 +43,7 @@ namespace LabWork15
                     return true;
                 }
             }
-            catch (SqlException)
+            catch (Exception)
             {
                 return false;
             }
@@ -62,7 +60,7 @@ namespace LabWork15
         }
 
         //Task4
-        public static async Task<object?> ExecuteScalarAsync(string sqlQuery)
+        public static async Task<object?> GetValueAsync(string sqlQuery)
         {
             using (SqlConnection connection = new(ConnectionString))
             {
@@ -95,19 +93,44 @@ namespace LabWork15
         }
 
         //Task6
-        public static async Task UploadPhotoToDatabase(string customerLogin, string filePath)
+        public async Task UploadCustomerPhotoAsync(string customerLogin, string filePath)
         {
-            byte[] photoBytes = File.ReadAllBytes(filePath);
+            byte[] fileBytes;
 
-            string sqlQuery = "UPDATE Customers SET Photo = @Photo WHERE Login = @Login";
-
-            SqlParameter[] parameters =
+            try
             {
-                new SqlParameter("@Photo", photoBytes),
-                new SqlParameter("@Login", customerLogin)
-            };
+                // Чтение файла и преобразование его в массив байтов
+                using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        await fileStream.CopyToAsync(memoryStream);
+                        fileBytes = memoryStream.ToArray();
+                    }
+                }
 
-            await ExecuteNonQueryAsync(sqlQuery, parameters);
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+
+                    // Подготовка SQL-запроса с параметрами
+                    string query = "UPDATE Customers SET Photo = @Photo WHERE Login = @Login";
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@Photo", fileBytes);
+                        command.Parameters.AddWithValue("@Login", customerLogin);
+
+                        await command.ExecuteNonQueryAsync();
+                    }
+                }
+
+                Console.WriteLine("Фото успешно загружено в базу данных.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ошибка при загрузке фото: " + ex.Message);
+            }
         }
 
         //Task7 
