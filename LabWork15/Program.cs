@@ -4,10 +4,10 @@ namespace LabWork15
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             Task1();
-            //Task2();
+            Task2();
 
             Console.WriteLine("Проверка подключения...");
             if (!DAL.IsConnected())
@@ -17,19 +17,18 @@ namespace LabWork15
             }
             Console.WriteLine("Успешное подключение");
 
-            //await Task3(); //change type
+            //await Task3Async();
             //
-            //await Task4();
-
-            await Task5(); //change type
-
-            //await Task6(); // Add Photo to Customer, 
+            //await Task4Async();
             //
-            //await Task7();
-            //
-            //await Task8();
+            //await Task5Async();
+            
+            //await Task6Async();
+            
+            await Task7Async();
+            
+            await Task8Async();
         }
-
 
         private static void Task1()
         {
@@ -46,15 +45,15 @@ namespace LabWork15
             Console.WriteLine();
         }
 
-        private static async Task Task3()
+        private static async Task Task3Async()
         {
             Console.WriteLine("\n<<Task3>>");
 
-            string sqlQuery = "UPDATE Product SET Price += 1 WHERE Type = 'Phone'";
+            string sqlQuery = "UPDATE Product SET Price += 1 WHERE Type = 'планшет'";
             try
             {
-                int rowsAffected = await DAL.ExecuteSqlCommandAsync(sqlQuery);
-                Console.WriteLine($"Количество измененных строк: {rowsAffected}");
+                int rowsCount = await DAL.ExecuteSqlCommandAsync(sqlQuery);
+                Console.WriteLine($"Количество измененных строк: {rowsCount}");
             }
             catch (Exception ex)
             {
@@ -62,8 +61,7 @@ namespace LabWork15
             }
         }
 
-
-        private static async Task Task4()
+        private static async Task Task4Async()
         {
             Console.WriteLine("\n<<Task4>>");
             string sqlQuery = "SELECT MAX(Price) FROM Product";
@@ -78,12 +76,12 @@ namespace LabWork15
             }
         }
 
-        private static async Task Task5()
+        private static async Task Task5Async()
         {
             Console.WriteLine("\n<<Task5>>");
 
-            string productType = "Tablet";
-            decimal newPrice = 1099;
+            string productType = "планшет";
+            decimal newPrice = 2222;
 
             try
             {
@@ -96,12 +94,12 @@ namespace LabWork15
             }
         }
 
-        static async Task Task6()
+        static async Task Task6Async()
         {
             Console.WriteLine("\n<<Task6>>");
 
             string login = "janedoe";
-            string filePath = @$"{Environment.CurrentDirectory}\Images\img.png";
+            string filePath = @$"{Environment.CurrentDirectory}\Imagetgs\img.png";
 
             try
             {
@@ -114,7 +112,7 @@ namespace LabWork15
             }
         }
 
-        private static async Task Task7()
+        private static async Task Task7Async()
         {
             Console.WriteLine("\n<<Task7>>");
 
@@ -132,7 +130,7 @@ namespace LabWork15
             }
         }
 
-        private static async Task Task8()
+        private static async Task Task8Async()
         {
             Console.WriteLine("\n<<Task8>>");
 
